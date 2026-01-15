@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Carmel High School Gallery Admin</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    /* ... (CSS STYLES REMAIN UNCHANGED) ... */
+    :root {
+      --primary-red: #ff6b6b;
+      --primary-dark-red: #e05555;
+      --primary-orange: #ffa726;
+      --primary-teal: #26c6da;
+      --primary-dark: #333333;
+      --bg-primary: #ffffff;
+      --bg-secondary: #f5f5f5;
+      --bg-tertiary: #e9ecef;
+      --text-primary: #333333;
+      --text-secondary: #666666;
+      --text-tertiary: #999999;
+      --border-color: #ddd;
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+      --border-radius: 50px;
+    }
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body { font-family: 'Open Sans', sans-serif; background: var(--bg-secondary); color: var(--text-primary); line-height: 1.6; min-height: 100vh; }
+    
+    /* Admin Header */
+    .admin-header { background: var(--primary-red); color: white; padding: 20px; box-shadow: var(--shadow-md); }
+    .admin-header-content { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; }
+    .school-logo { display: flex; align-items: center; gap: 15px; }
+    .school-logo img { width: 50px; height: 50px; border-radius: 10px; }
+    .school-logo h1 { font-family: 'Montserrat', sans-serif; font-size: 24px; font-weight: 700; }
+    .school-logo span { display: block; font-size: 14px; opacity: 0.9; }
+    #loginStatus { background: rgba(255, 255, 255, 0.2); padding: 8px 20px; border-radius: var(--border-radius); font-weight: 500; display: flex; align-items: center; gap: 8px; }
+    
+    /* Login Container */
+    .login-container { min-height: calc(100vh - 80px); display: flex; align-items: center; justify-content: center; padding: 40px 20px; }
+    #loginForm { background: white; border-radius: 20px; padding: 40px; width: 100%; max-width: 400px; box-shadow: var(--shadow-lg); text-align: center; }
+    .login-title { font-family: 'Montserrat', sans-serif; font-size: 24px; font-weight: 700; color: var(--primary-red); margin-bottom: 30px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+    
+    /* Admin Main Content */
+    .admin-main { max-width: 1200px; margin: 40px auto; padding: 0 20px; display: none; }
+    
+    /* Form Styles */
+    .form-group { margin-bottom: 20px; text-align: left; }
+    .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-primary); font-size: 14px; }
+    .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 12px 15px; border: 2px solid var(--border-color); border-radius: 10px; font-family: 'Open Sans', sans-serif; font-size: 15px; transition: all 0.3s ease; }
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus { outline: none; border-color: var(--primary-red); box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1); }
+    
+    /* Buttons */
+    .btn { padding: 12px 24px; border: none; border-radius: var(--border-radius); font-family: 'Montserrat', sans-serif; font-weight: 600; cursor: pointer; transition: all 0.3s ease; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+    .btn-primary { background: var(--primary-red); color: white; }
+    .btn-primary:hover { background: var(--primary-dark-red); transform: translateY(-2px); box-shadow: var(--shadow-md); }
+    .btn-secondary { background: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border-color); }
+    .btn-secondary:hover { background: var(--bg-tertiary); transform: translateY(-2px); }
+    .btn-outline { background: transparent; color: var(--primary-red); border: 2px solid var(--primary-red); }
+    .btn-outline:hover { background: var(--primary-red); color: white; }
+    .btn-danger { background: #dc3545; color: white; padding: 8px 16px; font-size: 14px; }
+    .btn-danger:hover { background: #c82333; transform: translateY(-1px); }
+    
+    /* Layout */
+    .admin-actions { display: flex; gap: 15px; margin-bottom: 30px; flex-wrap: wrap; }
+    #galleryFormContainer { background: white; border-radius: 20px; padding: 30px; margin-bottom: 30px; box-shadow: var(--shadow-md); display: none; }
+    .form-title { font-family: 'Montserrat', sans-serif; font-size: 22px; color: var(--primary-red); margin-bottom: 25px; display: flex; align-items: center; gap: 10px; }
+    #galleryList { background: white; border-radius: 20px; padding: 30px; box-shadow: var(--shadow-md); }
+    .gallery-list-title { font-family: 'Montserrat', sans-serif; font-size: 20px; color: var(--text-primary); margin-bottom: 25px; display: flex; align-items: center; gap: 10px; }
+    .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; }
+    .gallery-item { background: var(--bg-secondary); border-radius: 15px; overflow: hidden; transition: all 0.3s ease; border: 1px solid var(--border-color); }
+    .gallery-item:hover { transform: translateY(-5px); box-shadow: var(--shadow-lg); border-color: var(--primary-red); }
+    .gallery-image { width: 100%; height: 180px; object-fit: cover; border-bottom: 1px solid var(--border-color); }
+    .gallery-content { padding: 20px; }
+    .gallery-content h4 { font-family: 'Montserrat', sans-serif; font-size: 16px; font-weight: 600; margin-bottom: 8px; color: var(--text-primary); }
+    .gallery-content p { font-size: 14px; color: var(--text-secondary); margin-bottom: 5px; }
+    .gallery-actions { display: flex; gap: 10px; margin-top: 15px; }
+    
+    /* Utilities */
+    .message { padding: 12px 20px; border-radius: 10px; margin-top: 15px; display: flex; align-items: center; gap: 10px; animation: fadeIn 0.3s ease; }
+    .success-message { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+    .error-message { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    .warning-message { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+    .info-message { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; font-size: 14px; margin-top: 10px; }
+    .loading { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; gap: 15px; color: var(--text-secondary); grid-column: 1 / -1; }
+    .spinner { width: 40px; height: 40px; border: 3px solid var(--border-color); border-top: 3px solid var(--primary-red); border-radius: 50%; animation: spin 1s linear infinite; }
+    .image-preview { width: 100%; max-height: 200px; object-fit: contain; background: var(--bg-secondary); border-radius: 10px; padding: 10px; margin-top: 15px; border: 1px solid var(--border-color); display: none; }
+    .image-preview.visible { display: block; }
+    .hidden { display: none; }
+    .visible { display: block; }
+    .mt-3 { margin-top: 15px; }
+    .mt-4 { margin-top: 20px; }
+    .flex { display: flex; }
+    .flex-wrap { flex-wrap: wrap; }
+    .gap-3 { gap: 15px; }
+    
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+    
+    @media (max-width: 768px) {
+      .admin-header-content, .admin-actions, .gallery-actions { flex-direction: column; text-align: center; }
+      .admin-actions .btn, .gallery-actions .btn { width: 100%; justify-content: center; }
+      .gallery-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header class="admin-header">
+    <div class="admin-header-content">
+      <div class="school-logo">
+        <img src="images/carmel-school-gad.webp" alt="Carmel High School Logo">
+        <div>
+          <h1>Carmel High School</h1>
+          <span>Gadchiroli - Gallery Admin Panel</span>
+        </div>
+      </div>
+      <div id="loginStatus">Not logged in</div>
+    </div>
+  </header>
+
+  <div id="loginContainer" class="login-container">
+    <div id="loginForm">
+      <div class="login-title">
+        <i class="fas fa-lock"></i>
+        Admin Login
+      </div>
+      
+      <div class="form-group">
+        <label for="email">Admin Email</label>
+        <input type="email" id="email" placeholder="Enter admin email">
+      </div>
+      
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="Enter password" autocomplete="current-password">
+      </div>
+      
+      <button class="btn btn-primary" onclick="login()" id="loginBtn" style="width: 100%;">
+        <i class="fas fa-sign-in-alt"></i>
+        Login
+      </button>
+      <div id="loginMessage" class="message hidden"></div>
+      
+      </div>
+  </div>
+
+  <main id="adminMain" class="admin-main">
+    <div class="admin-actions">
+      <button class="btn btn-primary" onclick="showForm('add')">
+        <i class="fas fa-plus"></i>
+        Add New Image
+      </button>
+      <button class="btn btn-secondary" onclick="loadGalleryItems()">
+        <i class="fas fa-sync-alt"></i>
+        Refresh Gallery
+      </button>
+    </div>
+
+    <div id="galleryFormContainer">
+      <h3 class="form-title" id="formTitle">
+        <i class="fas fa-image"></i>
+        Add New Gallery Image
+      </h3>
+      
+      <div class="form-group">
+        <label for="imageCategory">Category *</label>
+        <select id="imageCategory">
+          <option value="">Select a category</option>
+          <option value="campus">Campus Life</option>
+          <option value="academic">Academic</option>
+          <option value="events">Events & Celebrations</option>
+          <option value="sports">Sports & Games</option>
+          <option value="cultural">Cultural Activities</option>
+          <option value="infrastructure">Infrastructure</option>
+          <option value="achievements">Achievements</option>
+          <option value="faculty">Faculty & Staff</option>
+          <option value="student-life">Student Life</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label for="imageCaption">Image Caption/Title *</label>
+        <input type="text" id="imageCaption" placeholder="Enter a descriptive caption" maxlength="120">
+        <small style="color: var(--text-tertiary); font-size: 12px;">Max 120 characters</small>
+      </div>
+      
+      <div class="form-group">
+        <label for="imageUrl">Image URL *</label>
+        <input type="text" id="imageUrl" placeholder="https://drive.google.com/file/d/.../view">
+        <div class="info-message mt-3">
+          <i class="fas fa-lightbulb"></i>
+          Tip: Paste Google Drive links directly. They will be auto-converted.
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="imageAltText">Alternative Text (for accessibility)</label>
+        <input type="text" id="imageAltText" placeholder="Describe the image for screen readers">
+      </div>
+      
+      <img id="imagePreview" class="image-preview" alt="Image preview will appear here">
+      
+      <input type="hidden" id="imageId">
+      
+      <div class="flex flex-wrap gap-3 mt-4">
+        <button class="btn btn-primary" onclick="saveGalleryItem()" id="saveButton">
+          <i class="fas fa-save"></i>
+          Save Image
+        </button>
+        <button class="btn btn-secondary" onclick="cancelForm()">
+          <i class="fas fa-times"></i>
+          Cancel
+        </button>
+      </div>
+      
+      <div id="formMessage" class="message hidden mt-4"></div>
+    </div>
+
+    <div id="galleryList">
+      <h3 class="gallery-list-title">
+        <i class="fas fa-images"></i>
+        Gallery Images
+        <small id="imageCount" style="font-size: 14px; color: var(--text-tertiary); margin-left: 10px;"></small>
+      </h3>
+      
+      <div id="galleryGrid" class="gallery-grid">
+        <div class="loading">
+          <div class="spinner"></div>
+          <p>Verifying credentials...</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { 
+      getFirestore, collection, getDocs, addDoc, doc, deleteDoc, updateDoc, query, orderBy 
+    } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    // ADDED: Import Authentication functions
+    import { 
+      getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged 
+    } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+    // Import the functions you need from the SDKs you need
+    // https://firebase.google.com/docs/web/setup#available-libraries
+
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyB-ZK1L8Tn46uNggFaWAVXsMpcs32RcQlE",
+      authDomain: "carmel-gallery-database.firebaseapp.com",
+      projectId: "carmel-gallery-database",
+      storageBucket: "carmel-gallery-database.firebasestorage.app",
+      messagingSenderId: "608667644518",
+      appId: "1:608667644518:web:e92f6446e8761f497a33a7"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app); // Initialize Auth
+    const COLLECTION_NAME = "gallery";
+
+    // STATE
+    let currentImages = [];
+    
+    // EXPOSE FUNCTIONS TO WINDOW
+    window.login = login;
+    window.logout = logout;
+    window.loadGalleryItems = loadGalleryItems;
+    window.showForm = showForm;
+    window.cancelForm = cancelForm;
+    window.saveGalleryItem = saveGalleryItem;
+    window.deleteGalleryItem = deleteGalleryItem;
+    window.editGalleryItem = editGalleryItem;
+
+    // DOM ELEMENTS
+    const loginContainer = document.getElementById('loginContainer');
+    const adminMain = document.getElementById('adminMain');
+    const loginStatus = document.getElementById('loginStatus');
+    const loginMessage = document.getElementById('loginMessage');
+    const galleryFormContainer = document.getElementById('galleryFormContainer');
+    const galleryList = document.getElementById('galleryList');
+    const galleryGrid = document.getElementById('galleryGrid');
+    const imageUrlInput = document.getElementById('imageUrl');
+    const imagePreview = document.getElementById('imagePreview');
+    const imageCount = document.getElementById('imageCount');
+    
+    // Categories
+    const categoryNames = {
+        'campus': 'Campus Life',
+        'academic': 'Academic',
+        'events': 'Events & Celebrations',
+        'sports': 'Sports & Games',
+        'cultural': 'Cultural Activities',
+        'infrastructure': 'Infrastructure',
+        'achievements': 'Achievements',
+        'faculty': 'Faculty & Staff',
+        'student-life': 'Student Life'
+    };
+
+    // ============================================
+    // AUTHENTICATION (SECURE)
+    // ============================================
+    
+    // 1. Listen for auth state changes (Auto-login/logout)
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // User is signed in
+        console.log("User logged in:", user.email);
+        loginContainer.style.display = 'none';
+        adminMain.style.display = 'block';
+        loginStatus.innerHTML = `<i class="fas fa-check-circle"></i> ${user.email}`;
+        loginStatus.style.color = '#10b981';
+        
+        // Add Logout Button if not present
+        if (!document.getElementById('logoutBtn')) {
+            const logoutBtn = document.createElement('button');
+            logoutBtn.id = 'logoutBtn';
+            logoutBtn.className = 'btn btn-outline';
+            logoutBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i> Logout';
+            logoutBtn.style.marginLeft = '15px';
+            logoutBtn.onclick = logout;
+            document.querySelector('.admin-actions').appendChild(logoutBtn);
+        }
+        
+        loadGalleryItems();
+      } else {
+        // User is signed out
+        console.log("User logged out");
+        adminMain.style.display = 'none';
+        loginContainer.style.display = 'flex';
+        loginStatus.innerHTML = 'Please login';
+        loginStatus.style.color = '';
+        
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) logoutBtn.remove();
+      }
+    });
+
+    // 2. Login Function
+    async function login() {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const loginBtn = document.getElementById('loginBtn');
+      
+      if (!email || !password) {
+        showMessage(loginMessage, 'Please enter email and password.', 'warning');
+        return;
+      }
+      
+      try {
+        loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
+        loginBtn.disabled = true;
+        
+        // This sends data to Google servers for verification
+        await signInWithEmailAndPassword(auth, email, password);
+        // Success! The onAuthStateChanged listener above will handle the UI switch.
+        
+      } catch (error) {
+        console.error("Login Error:", error.code, error.message);
+        let msg = "Login failed.";
+        if (error.code === 'auth/invalid-credential') msg = "Invalid email or password.";
+        if (error.code === 'auth/too-many-requests') msg = "Too many failed attempts. Try again later.";
+        showMessage(loginMessage, msg, 'error');
+        loginBtn.disabled = false;
+        loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login';
+      }
+    }
+    
+    // 3. Logout Function
+    async function logout() {
+        try {
+            await signOut(auth);
+            showMessage(loginMessage, 'Logged out successfully.', 'success');
+        } catch (error) {
+            alert('Error logging out: ' + error.message);
+        }
+    }
+
+    // ============================================
+    // HELPER FUNCTIONS
+    // ============================================
+    
+    function showMessage(element, message, type = 'error') {
+        element.innerHTML = `
+          <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'warning' ? 'exclamation-triangle' : 'exclamation-circle'}"></i>
+          ${message}
+        `;
+        element.className = `message ${type}-message`;
+        element.classList.remove('hidden');
+        if (type === 'success') {
+          setTimeout(() => element.classList.add('hidden'), 3000);
+        }
+    }
+
+    function convertDriveUrl(driveUrl) {
+        if (!driveUrl) return driveUrl;
+        let fileId = null;
+        const pattern1 = /\/d\/([a-zA-Z0-9_-]+)/;
+        const pattern2 = /[?&]id=([a-zA-Z0-9_-]+)/;
+        const match1 = driveUrl.match(pattern1);
+        const match2 = driveUrl.match(pattern2);
+        if (match1) fileId = match1[1];
+        else if (match2) fileId = match2[1];
+        return fileId ? `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000` : driveUrl;
+    }
+    
+    function formatDate(isoString) {
+        if(!isoString) return '';
+        const date = new Date(isoString);
+        return date.toLocaleDateString('en-IN', {
+          day: '2-digit', month: 'short', year: 'numeric'
+        });
+    }
+
+    // ============================================
+    // FIRESTORE OPERATIONS (Requires Auth due to Rules)
+    // ============================================
+
+    async function loadGalleryItems() {
+        try {
+          galleryGrid.innerHTML = `<div class="loading"><div class="spinner"></div><p>Loading gallery images...</p></div>`;
+          
+          const q = query(collection(db, COLLECTION_NAME), orderBy("timestamp", "desc"));
+          const querySnapshot = await getDocs(q);
+          
+          currentImages = [];
+          querySnapshot.forEach((doc) => {
+             currentImages.push({ id: doc.id, ...doc.data() });
+          });
+
+          displayGalleryItems(currentImages);
+        } catch (error) {
+          console.error("Error loading docs: ", error);
+          galleryGrid.innerHTML = `<div class="error-message" style="grid-column: 1/-1; text-align: center;"><i class="fas fa-exclamation-circle"></i> Error: ${error.message}</div>`;
+        }
+    }
+
+    function displayGalleryItems(images) {
+        if (!images || images.length === 0) {
+          galleryGrid.innerHTML = `<div class="warning-message" style="grid-column: 1/-1; text-align: center;"><i class="fas fa-images"></i> No images found.</div>`;
+          imageCount.textContent = '(0 images)';
+          return;
+        }
+        imageCount.textContent = `(${images.length} images)`;
+        
+        let html = '';
+        images.forEach(item => {
+          html += `
+            <div class="gallery-item">
+              <img src="${item.imageUrl}" alt="${item.altText || item.caption}" class="gallery-image">
+              <div class="gallery-content">
+                <h4>${item.caption}</h4>
+                <p><strong>Category:</strong> ${categoryNames[item.category] || item.category}</p>
+                <p><strong>Added:</strong> ${formatDate(item.timestamp)}</p>
+                <div class="gallery-actions">
+                  <button class="btn btn-secondary" onclick="editGalleryItem('${item.id}')"><i class="fas fa-edit"></i> Edit</button>
+                  <button class="btn btn-danger" onclick="deleteGalleryItem('${item.id}')"><i class="fas fa-trash"></i> Delete</button>
+                </div>
+              </div>
+            </div>`;
+        });
+        galleryGrid.innerHTML = html;
+    }
+
+    async function saveGalleryItem() {
+        const id = document.getElementById('imageId').value;
+        const category = document.getElementById('imageCategory').value;
+        const caption = document.getElementById('imageCaption').value.trim();
+        let imageUrl = document.getElementById('imageUrl').value.trim();
+        const altText = document.getElementById('imageAltText').value.trim();
+        const saveButton = document.getElementById('saveButton');
+        const formMessage = document.getElementById('formMessage');
+        
+        if (!category || !caption || !imageUrl) {
+          showMessage(formMessage, 'Please fill all required fields.', 'warning');
+          return;
+        }
+        
+        imageUrl = convertDriveUrl(imageUrl);
+        const galleryItem = {
+          category, caption, imageUrl,
+          altText: altText || caption,
+          timestamp: new Date().toISOString()
+        };
+        
+        try {
+          saveButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+          saveButton.disabled = true;
+          
+          if (id) {
+             await updateDoc(doc(db, COLLECTION_NAME, id), galleryItem);
+             showMessage(formMessage, 'Image updated successfully!', 'success');
+          } else {
+             await addDoc(collection(db, COLLECTION_NAME), galleryItem);
+             showMessage(formMessage, 'Image added successfully!', 'success');
+          }
+          setTimeout(() => { cancelForm(); loadGalleryItems(); }, 1500);
+        } catch (error) {
+           showMessage(formMessage, `Error: ${error.message}`, 'error');
+        } finally {
+           saveButton.innerHTML = '<i class="fas fa-save"></i> Save Image';
+           saveButton.disabled = false;
+        }
+    }
+
+    async function deleteGalleryItem(id) {
+        if (!confirm('Are you sure?')) return;
+        try {
+           await deleteDoc(doc(db, COLLECTION_NAME, id));
+           loadGalleryItems();
+        } catch (error) {
+           alert(`Error deleting: ${error.message}`);
+        }
+    }
+
+    function editGalleryItem(id) {
+        const item = currentImages.find(img => img.id === id);
+        if (item) showForm('edit', item);
+    }
+
+    function showForm(mode, item = null) {
+        const formTitle = document.getElementById('formTitle');
+        document.getElementById('formMessage').classList.add('hidden');
+        
+        if (mode === 'add') {
+          formTitle.innerHTML = '<i class="fas fa-plus"></i> Add New Image';
+          document.getElementById('imageId').value = '';
+          document.getElementById('imageCategory').value = '';
+          document.getElementById('imageCaption').value = '';
+          document.getElementById('imageUrl').value = '';
+          document.getElementById('imageAltText').value = '';
+          imagePreview.classList.remove('visible');
+          imagePreview.src = '';
+        } else if (mode === 'edit' && item) {
+          formTitle.innerHTML = '<i class="fas fa-edit"></i> Edit Image';
+          document.getElementById('imageId').value = item.id;
+          document.getElementById('imageCategory').value = item.category;
+          document.getElementById('imageCaption').value = item.caption;
+          document.getElementById('imageUrl').value = item.imageUrl;
+          document.getElementById('imageAltText').value = item.altText || '';
+          if (item.imageUrl) {
+            imagePreview.src = item.imageUrl;
+            imagePreview.classList.add('visible');
+          }
+        }
+        galleryFormContainer.style.display = 'block';
+        galleryList.style.display = 'none';
+    }
+
+    function cancelForm() {
+        galleryFormContainer.style.display = 'none';
+        galleryList.style.display = 'block';
+        imagePreview.classList.remove('visible');
+    }
+
+    // INITIALIZATION
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('password').addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') login();
+        });
+        imageUrlInput.addEventListener('input', () => {
+          const url = imageUrlInput.value.trim();
+          if (url) {
+            imagePreview.src = convertDriveUrl(url);
+            imagePreview.classList.add('visible');
+          } else {
+            imagePreview.classList.remove('visible');
+          }
+        });
+    });
+  </script>
+</body>
+</html>
